@@ -3,6 +3,21 @@
 
 ---
 
+## [v0.0.4-ritual] — 2025-04-29
+🌿 _The spirits float in the circle._
+
+- Added a full outer frame titled **“The Spirits Gather”**
+- Centered the spirit list in a floating inner box titled **“Spirits we have made friends with”**
+- Footer gently reminds the ranger how to leave the circle
+- Layout is fully responsive and resizes with care
+- Spirit list now feels held, intentional, and softly presented
+
+> *The ritual space is drawn.  
+> The companions gather.  
+> The forest begins to hum.*
+
+---
+
 ## [v0.0.2-summoning] — 2025-04-28
 ✨ _The spirits answer._
 
