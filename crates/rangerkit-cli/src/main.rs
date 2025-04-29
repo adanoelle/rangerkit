@@ -1,6 +1,7 @@
 use clap::{Parser, Subcommand};
 use rangerkit_core::SpiritManifest;
 use serde_json;
+use nu_ansi_term::Color;
 
 
 /// RangerKit CLI: Walk the trails with spirit companions.
@@ -57,9 +58,16 @@ fn commune_with_spirits(output_format: &str) {
             println!("\n🌿 The spirits gather around you:\n");
 
             for spirit in manifest.spirits {
-                println!("{}  \x1b[1m{}\x1b[0m", spirit.glyph, spirit.name); // Bold name
+                println!("{}  {}", 
+                    Color::Yellow.paint(&spirit.glyph), 
+                    Color::Cyan.bold().paint(&spirit.name)
+                );
+
                 for ability in spirit.abilities {
-                    println!("    \x1b[32m- {}\x1b[0m: {}", ability.name, ability.description); // Green abilities
+                    println!("    {}: {}", 
+                        Color::Green.paint(format!("- {}", ability.name)), 
+                        ability.description
+                    );
                 }
                 println!(); // Soft spacing
             }
