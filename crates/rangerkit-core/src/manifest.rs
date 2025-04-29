@@ -1,5 +1,6 @@
 use crate::spirit::Spirit;
 use crate::ability::Ability;
+use serde::Serialize;
 
 /// Defines the SpiritManifest struct, a living registry of all known Spirits.
 
@@ -7,7 +8,7 @@ use crate::ability::Ability;
 ///
 /// The SpiritManifest allows RangerKit to keep track of active companions
 /// and their abilities for CLI invocation and TUI mapping.
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct SpiritManifest {
     /// The collection of all registered spirits.
     pub spirits: Vec<Spirit>,

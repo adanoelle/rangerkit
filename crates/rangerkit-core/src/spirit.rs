@@ -1,11 +1,12 @@
 use crate::ability::Ability;
+use serde::Serialize;
 
 /// Defines the Spirit struct, representing a companion entity with abilities.
 
 /// Represents a Spirit companion.
 ///
 /// Each Spirit has a name, a glyph (symbol), and a set of abilities.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Spirit {
     /// The name of the spirit
     pub name: String,

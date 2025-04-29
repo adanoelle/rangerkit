@@ -1,7 +1,9 @@
+use serde::Serialize;
+
 /// Defines the Ability struct, representing powers a Spirit can perform.
 
 /// Represents a single ability a spirit can perform
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Ability {
     pub name: String,
     pub description: String,

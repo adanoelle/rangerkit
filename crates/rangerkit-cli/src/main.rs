@@ -1,9 +1,10 @@
 use clap::{Parser, Subcommand};
 use rangerkit_core::SpiritManifest;
+use serde_json;
 
 
 /// RangerKit CLI: Walk the trails with spirit companions.
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[command(name = "rangerkit")]
 #[command(about = "🌲 Summon spirits. Map waystones.")]
 struct Cli {
@@ -11,7 +12,7 @@ struct Cli {
     command: Commands,
 }
 
-#[derive(Subcommand)]
+#[derive(Debug, Subcommand)]
 enum Commands {
     /// Work with your spirit companions.
     Spirits {
@@ -20,10 +21,14 @@ enum Commands {
     }
 }
 
-#[derive(Subcommand)]
+#[derive(Debug, Subcommand)]
 enum SpiritCommands {
     /// Commune with the spirits and see who walks beside you.
-    Commune,
+    Commune {
+        /// Output format: "text" or "json".
+        #[arg(long = "format", default_value = "text")]
+        output_format: String,
+    },
 }
 
 fn main() {
@@ -31,24 +36,33 @@ fn main() {
 
     match &cli.command {
         Commands::Spirits { subcommand } => match subcommand {
-            SpiritCommands::Commune => {
-                commune_with_spirits();
+            SpiritCommands::Commune { output_format } => {
+                commune_with_spirits(output_format);
             }
         },
     }
 }
 
 /// Handles communing with the spirits. Lists known spirits and their abilities.
-fn commune_with_spirits() {
+fn commune_with_spirits(output_format: &str) {
     let manifest = SpiritManifest::default();
 
-    println!("\n🌿 The spirits gather around you:\n");
-
-    for spirit in manifest.spirits {
-        println!("{} {}", spirit.glyph, spirit.name);
-        for ability in spirit.abilities {
-            println!("    - {}: {}", ability.name, ability.description);
+    match output_format {
+        "json" => {
+            let json = serde_json::to_string_pretty(&manifest)
+              .expect("Failed to serialize spirits to JSON.");
+          println!("{}", json);
         }
-        println!(); // Soft spacing
+        "text" | _ => {
+            println!("\n🌿 The spirits gather around you:\n");
+
+            for spirit in manifest.spirits {
+                println!("{}  \x1b[1m{}\x1b[0m", spirit.glyph, spirit.name); // Bold name
+                for ability in spirit.abilities {
+                    println!("    \x1b[32m- {}\x1b[0m: {}", ability.name, ability.description); // Green abilities
+                }
+                println!(); // Soft spacing
+            }
+        }
     }
 }
