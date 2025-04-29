@@ -40,32 +40,52 @@
 
 ---
 
-## Phase 4 — Devlogs and Bestiary
+## Phase 4 — Devlogs, Checklist, and Trail Markers
 - [x] Create `devlogs/` directory
-- [x] Create first devlog `0000-hackathon-start.md`
-- [x] Create `spirits/SPIRITS.md` bestiary scaffold
-- [x] Write lore entries for Lantern Spirit and Waystone Spirit
+- [x] Write `0000-hackathon-start.md`
+- [x] Write `0001-first-spirits-commune.md`
+- [x] Scaffold `0002-summon-first-spirit.md`
+- [x] Create `CHECKLIST.md`
+- [x] Create `CHANGELOG.md`
+- [x] Add first Git tags:
+  - [x] `v0.0.1-trailhead`
+  - [x] `v0.0.2-summoning`
 
 ---
 
-## Phase 5 — In Progress / Next Steps
-- [ ] Integrate `nu-ansi-term` for cleaner colored output
-- [ ] Create `spirits summon <spirit_name>` CLI
-- [ ] Lookup and display summoned spirit details
-- [ ] Add soft "whisper" messages during spirit summon
-- [ ] Begin planning spirit abilities for action execution
-- [ ] (Optional) Start the first Waystone Map TUI
+## Phase 5 — Book of RangerKit (mdBook)
+- [x] Install and initialize `mdBook`
+- [x] Create `/book/` structure
+- [x] Write `index.md` (Welcome to RangerKit)
+- [x] Write `spirits.md` (Meeting the Spirits)
+- [x] Write `cli-guide.md` (Walking the Trails)
+- [x] Serve and view the Book locally
+- [x] Prepare future chapters:
+  - [ ] Spirit Whispers (planned)
+  - [ ] Future Trails (planned)
+
+---
+
+# Future Trails (Planned)
+- [ ] Integrate `nu-ansi-term` for richer CLI coloring
+- [ ] Add random Spirit Whispers during commune and summon
+- [ ] Build a `spirits invoke` system for abilities
+- [ ] Sketch the Waystone Star Map TUI
+- [ ] Implement Listening Stones (background watchers)
+- [ ] Document CLI options and spirit philosophy in the Book
 
 ---
 
 # Notes
-- The spirits have been summoned.
-- The trailhead is marked.
-- The first gathering has begun.
+- The spirits have gathered.
+- The trails are open.
+- The RangerKit Book breathes.
+- The forest listens.
 
 ---
 
 # Ranger's Blessing
-> *The stars above, the stones below —  
-> and now, the spirits beside you.*
+> *The first stones are laid.  
+> The first companions walk beside you.  
+> The forest has already begun to remember.*
 
