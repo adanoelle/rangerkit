@@ -1,62 +1,79 @@
-use std::io;
-use anyhow::{Context, Result};
-use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
-    execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
-};
+use anyhow::Result;
 use ratatui::{
+    layout::{Alignment, Constraint, Direction, Layout},
+    widgets::{Block, Borders, Paragraph},
     prelude::*,
-    widgets::{Block, Borders, List, ListItem},
 };
-
+use crate::tui::widgets::build_spirit_list;
 use rangerkit_core::SpiritManifest;
+use crate::tui::layout::{launch_tui, wait_for_exit};
 
-/// Runs the spirit commune TUI.
+
+/// Entrypoint for the commune TUI experience
 pub fn run_commune_tui() -> Result<()> {
-    enable_raw_mode()?;
+    launch_tui(|terminal| {
+        let manifest = SpiritManifest::default();
+        terminal.draw(|f| draw_commune_frame(f, &manifest))?;
+        wait_for_exit()
+    })
+}
 
-    let mut stdout = io::stdout();
-    execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
-    let backend = CrosstermBackend::new(stdout);
-    let mut terminal = Terminal::new(backend)?;
-    let manifest = SpiritManifest::default();
+pub fn draw_commune_frame(f: &mut Frame, manifest: &SpiritManifest) {
+    let full_area = f.area();
 
+    // Draw outer border first
+    let outer = Block::default()
+        .title("🌿 The Spirits Gather")
+        .borders(Borders::ALL)
+        .title_alignment(Alignment::Left);
 
-    terminal.draw(|f| {
-        let size = f.area();
-        let items: Vec<ListItem> = manifest.spirits.iter().map(|spirit| {
-            let content = format!("{}  {}", spirit.glyph, spirit.name);
-            ListItem::new(content)
-        }).collect();
+    f.render_widget(outer, full_area);
 
-        let list = List::new(items)
-            .block(Block::default()
-                .title("🌿 The Spirits Gather")
-                .borders(Borders::ALL)
-            );
+    // Centered box for the spirits
+    let box_width = 40;
+    let box_height = 10;
 
-        f.render_widget(list, size);
-    }).context("failed to draw spirits")?;
+    let vertical_chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length((full_area.height.saturating_sub(box_height)) / 2),
+            Constraint::Length(box_height),
+            Constraint::Min(0),
+        ])
+        .split(full_area);
 
-    // Wait for a keypress to exit
-    loop {
-        if let Event::Key(key) = event::read()? {
-            if key.code == KeyCode::Char('q') || key.code == KeyCode::Enter {
-                break;
-            }
-        }
-    }
+    let horizontal_chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Length((full_area.width.saturating_sub(box_width)) / 2),
+            Constraint::Length(box_width),
+            Constraint::Min(0),
+        ])
+        .split(vertical_chunks[1]);
 
-    disable_raw_mode()?;
+    let spirit_area = horizontal_chunks[1];
 
-    execute!(
-        terminal.backend_mut(),
-        LeaveAlternateScreen,
-        DisableMouseCapture
-    )?;
+    // Create inner frame for spirits with a border
+    let inner = Block::default()
+        .title("🕯️ Spirits")
+        .borders(Borders::ALL)
+        .title_alignment(Alignment::Center);
 
-    terminal.show_cursor()?;
+    let spirit_list = build_spirit_list(manifest).block(inner);
+    f.render_widget(spirit_list, spirit_area);
 
-    Ok(())
+    // Footer hint
+    let footer_chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Min(1),
+            Constraint::Length(1),
+        ])
+        .split(full_area);
+
+    let footer = Paragraph::new("🌿 Press 'q' or 'Enter' to leave the circle")
+        .style(Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC))
+        .alignment(Alignment::Center);
+
+    f.render_widget(footer, footer_chunks[1]);
 }
