@@ -30,6 +30,12 @@ enum SpiritCommands {
         #[arg(long = "format", default_value = "text")]
         output_format: String,
     },
+
+    /// Summon a spirit by name.
+    Summon {
+        /// The name of the spirit to summon.
+        spirit_name: String,
+    },
 }
 
 fn main() {
@@ -39,6 +45,10 @@ fn main() {
         Commands::Spirits { subcommand } => match subcommand {
             SpiritCommands::Commune { output_format } => {
                 commune_with_spirits(output_format);
+            }
+
+            SpiritCommands::Summon { spirit_name } => {
+                summon_spirit(spirit_name);
             }
         },
     }
@@ -71,6 +81,39 @@ fn commune_with_spirits(output_format: &str) {
                 }
                 println!(); // Soft spacing
             }
+        }
+    }
+}
+
+
+/// Handles summoning a spirit by name.
+fn summon_spirit(spirit_name: &str) {
+    let manifest = SpiritManifest::default();
+
+    let spirit = manifest.spirits.iter()
+      .find(|s| s.name.to_lowercase() == spirit_name.to_lowercase());
+
+    match spirit {
+        Some(spirit) => {
+            println!("\n✨ You summon the spirit:\n");
+            println!("{}  {}", 
+                Color::Yellow.paint(&spirit.glyph), 
+                Color::Cyan.bold().paint(&spirit.name)
+            );
+            println!();
+
+            for ability in &spirit.abilities {
+                println!("{} {}", 
+                    Color::Green.paint("-"), 
+                    ability.name
+                );
+                println!("    {}", ability.description);
+            }
+
+            println!("\n🌿 The spirit watches over your trail.\n");
+        }
+        None => {
+            println!("\n🌫️  No spirit by that name answered your call.\n");
         }
     }
 }
