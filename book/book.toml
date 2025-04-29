@@ -1,0 +1,6 @@
+[book]
+authors = ["installer"]
+language = "en"
+multilingual = false
+src = "src"
+title = "RangerKit"
