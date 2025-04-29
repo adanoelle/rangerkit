@@ -1,0 +1,10 @@
+[workspace]
+resolver = "2"
+members = [ 
+  "crates/rangerkit-cli",
+  "crates/rangerkit-core", 
+  "crates/rangerkit-spirits"
+]
+
+[workspace.package]
+edition = "2021"
