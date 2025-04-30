@@ -1,35 +1,70 @@
-use anyhow::Result;
+// crates/rangerkit-cli/src/tui/commune.rs
+use crate::tui::pulse::PulseCycle;
+use crate::tui::widgets::build_spirit_list;
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout},
     widgets::{Block, Borders, Paragraph},
     prelude::*,
 };
-use crate::tui::widgets::build_spirit_list;
 use rangerkit_core::SpiritManifest;
-use crate::tui::layout::{launch_tui, wait_for_exit};
 
+pub fn run_commune_tui() -> anyhow::Result<()> {
+    use std::{time::{Duration, Instant}, io};
+    use crossterm::event::{self, Event, KeyCode};
+    use crossterm::{terminal::{enable_raw_mode, disable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen}, execute};
+    use ratatui::backend::CrosstermBackend;
+    use ratatui::Terminal;
 
-/// Entrypoint for the commune TUI experience
-pub fn run_commune_tui() -> Result<()> {
-    launch_tui(|terminal| {
-        let manifest = SpiritManifest::default();
-        terminal.draw(|f| draw_commune_frame(f, &manifest))?;
-        wait_for_exit()
-    })
+    enable_raw_mode()?;
+    let mut stdout = io::stdout();
+    execute!(stdout, EnterAlternateScreen)?;
+    let backend = CrosstermBackend::new(stdout);
+    let mut terminal = Terminal::new(backend)?;
+
+    let manifest = SpiritManifest::default();
+    let pulse = PulseCycle::new(20);
+    let tick_rate = Duration::from_millis(200);
+    let mut tick = 0;
+
+    loop {
+        let now = Instant::now();
+
+        terminal.draw(|f| {
+            draw_commune_frame(f, &manifest, &pulse, tick);
+        })?;
+
+        let timeout = tick_rate.saturating_sub(now.elapsed());
+        if event::poll(timeout)? {
+            if let Event::Key(key) = event::read()? {
+                if matches!(key.code, KeyCode::Char('q') | KeyCode::Enter) {
+                    break;
+                }
+            }
+        }
+
+        tick = tick.wrapping_add(1);
+    }
+
+    disable_raw_mode()?;
+    execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
+    terminal.show_cursor()?;
+    Ok(())
 }
 
-pub fn draw_commune_frame(f: &mut Frame, manifest: &SpiritManifest) {
+pub fn draw_commune_frame(
+    f: &mut Frame,
+    manifest: &SpiritManifest,
+    pulse: &PulseCycle,
+    tick: usize,
+) {
     let full_area = f.area();
 
-    // Draw outer border first
     let outer = Block::default()
         .title("🌿 The Spirits Gather")
         .borders(Borders::ALL)
         .title_alignment(Alignment::Left);
-
     f.render_widget(outer, full_area);
 
-    // Centered box for the spirits
     let box_width = 40;
     let box_height = 10;
 
@@ -53,16 +88,14 @@ pub fn draw_commune_frame(f: &mut Frame, manifest: &SpiritManifest) {
 
     let spirit_area = horizontal_chunks[1];
 
-    // Create inner frame for spirits with a border
     let inner = Block::default()
-        .title("🕯️ Spirits")
+        .title("🕯️ Spirits ")
         .borders(Borders::ALL)
         .title_alignment(Alignment::Center);
 
-    let spirit_list = build_spirit_list(manifest).block(inner);
+    let spirit_list = build_spirit_list(manifest, pulse, tick).block(inner);
     f.render_widget(spirit_list, spirit_area);
 
-    // Footer hint
     let footer_chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
@@ -77,3 +110,4 @@ pub fn draw_commune_frame(f: &mut Frame, manifest: &SpiritManifest) {
 
     f.render_widget(footer, footer_chunks[1]);
 }
+

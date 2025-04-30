@@ -1,30 +1,34 @@
 // crates/rangerkit-cli/src/tui/widgets.rs
+use crate::tui::pulse::PulseCycle;
 use ratatui::{
-    widgets::{List, ListItem, Block, Borders},
+    widgets::{List, ListItem},
     text::{Line, Span},
-    style::{Color, Modifier, Style}, // ← move Style here
+    style::{Color, Style},
 };
 use rangerkit_core::SpiritManifest;
 
-/// Build the spirit list widget from a manifest.
-pub fn build_spirit_list(manifest: &SpiritManifest) -> List<'_> {
+/// Build the spirit list widget from a manifest, with pulsing glyphs.
+pub fn build_spirit_list(
+    manifest: &SpiritManifest,
+    pulse: &PulseCycle,
+    tick: usize,
+) -> List<'static> {
     let items: Vec<ListItem> = manifest.spirits.iter().map(|spirit| {
-        let glyph_color = match spirit.name.as_str() {
-            "Lantern Spirit" => Color::LightYellow,
-            "Waystone Spirit" => Color::Cyan,
-            _ => Color::Gray,
+        let base_color = match spirit.name.as_str() {
+            "Lantern Spirit" => Color::Red,
+            "Waystone Spirit" => Color::Red,
+            _ => Color::Red,
         };
 
+        let glyph_style = pulse.style_for_tick(tick, base_color);
+
         let glyph = Span::styled(
-            spirit.glyph.clone(),
-            Style::default()
-                .fg(glyph_color)
-                .add_modifier(Modifier::SLOW_BLINK | Modifier::BOLD),
+            spirit.glyph.to_string(),
+            glyph_style,
         );
 
         let name = Span::styled(
-            format!(" {}",
-            spirit.name),
+            format!(" {}", spirit.name),
             Style::default().fg(Color::White),
         );
 
@@ -32,6 +36,5 @@ pub fn build_spirit_list(manifest: &SpiritManifest) -> List<'_> {
     }).collect();
 
     List::new(items)
-        .block(Block::default().title("🌿 The Spirits Gather").borders(Borders::ALL))
 }
 

@@ -49,7 +49,7 @@ impl Default for SpiritManifest {
                 )),
           )
         .with_spirit(
-            Spirit::new("Waystone Spirit", "•")
+            Spirit::new("Waystone Spirit", " • ")
               .with_ability(Ability::new(
                   "Map the Stars",
                   "Draw a living starmap of your resources",
